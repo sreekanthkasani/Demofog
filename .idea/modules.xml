@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../Demofog/.idea/Demofog.iml" filepath="$PROJECT_DIR$/../Demofog/.idea/Demofog.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/LTFS.iml" filepath="$PROJECT_DIR$/.idea/LTFS.iml" />
     </modules>
   </component>
