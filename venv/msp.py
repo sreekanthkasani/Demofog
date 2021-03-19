@@ -1,15 +1,3 @@
-"""
-This class is adapted from the SecretUtil class in charm/toolbox/secretutil.py.
-It provides the following methods:
-- createPolicy: convert a Boolean formula encoded as a string into a policy represented like a tree;
-- convertPolicyToMSP: convert a policy into a monotone span program (MSP);
-- getCoefficients: given a policy, returns a coefficient for every attribute;
-- strip_index: remove the index from an attribute (i.e., x_y -> x);
-- prune: determine whether a given set of attributes satisfies the policy
-    (returns false if it doesn't, otherwise a good enough subset of attributes);
-- getAttributeList: retrieve the attributes that occur in a policy tree in order (left to right).
-"""
-
 from charm.core.math.pairing import ZR
 from charm.toolbox.policytree import *
 
@@ -19,6 +7,7 @@ class MSP:
     def __init__(self, groupObj, verbose=True):
         self.len_longest_row = 1
         self.group = groupObj
+        print("helloo")
 
     def createPolicy(self, policy_string):
         """
