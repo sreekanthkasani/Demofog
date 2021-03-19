@@ -7,7 +7,6 @@ class MSP:
     def __init__(self, groupObj, verbose=True):
         self.len_longest_row = 1
         self.group = groupObj
-        print("updated at git")
 
     def createPolicy(self, policy_string):
         """
