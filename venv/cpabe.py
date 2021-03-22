@@ -140,7 +140,6 @@ class BSW07(ABEnc):
         i = 0
         for key in mono_span_prog:
             if i == index:
-                print(key, ":", mono_span_prog[key] )
                 return mono_span_prog[key]
             else:
                 i = i + 1
@@ -173,28 +172,29 @@ class BSW07(ABEnc):
             d_i_prime.append(pk['g'] ** (r_i * msk['V_mu'][int(self.rhoMap(mono_span_prog,i))]))
 
         CT_prime = {'c_i_prime' :c_i_prime , 'd_i_prime':d_i_prime}
-        #print(CT_prime)
+
+
+
 
         R = self.randomString(100)
         r_dash = []
         lambda_i = []
-        #s = self.group.random(ZR)
-        #r_dash.append(s)
+
         for i in range(num_cols):
             r_dash.append(self.group.random(ZR))
 
-        #print("r_dash",r_dash[0])
-        #print("mono", self.getRowOfA(mono_span_prog, 0)[0]*r_dash[0])
         print(mono_span_prog)
-        for i in range(num_cols):
+        for k in range(len(mono_span_prog.keys())):
             sum = 0
-            for j in self.getRowOfA(mono_span_prog, i):
-                sum += self.getRowOfA(mono_span_prog, i)[j],"*",r_dash[i]
+            temp = self.getRowOfA(mono_span_prog, k)
+            for j in range(len(temp)):
+                sum += temp[j] * r_dash[j]
             lambda_i.append(sum)
+
 
         print(lambda_i)
         s=r_dash[0]
-        #c_zero = pair(pk['g'], pk['g']) ** (msk['beta']*s)
+        c_zero = pair(pk['g'], pk['g']) ** (msk['beta']*s)
         #print(c_zero)
 
 
