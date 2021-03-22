@@ -8,6 +8,7 @@ from cpabe import BSW07
 
 
 def main():
+    print("updated")
     # instantiate a bilinear pairing map
     pairing_group = PairingGroup('SS512')
 
