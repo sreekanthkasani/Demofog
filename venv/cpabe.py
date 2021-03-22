@@ -185,6 +185,7 @@ class BSW07(ABEnc):
 
         #print("r_dash",r_dash[0])
         #print("mono", self.getRowOfA(mono_span_prog, 0)[0]*r_dash[0])
+        print(mono_span_prog)
         for i in range(num_cols):
             sum = 0
             for j in self.getRowOfA(mono_span_prog, i):
