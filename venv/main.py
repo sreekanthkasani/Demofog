@@ -48,7 +48,7 @@ def main():
 
     # generate a ciphertext
     policy_str = '((1 and 3) and (2 OR 4))'
-    ctxt = cpabe.encrypt(pk, msg, policy_str,attr_list1)
+    ctxt = cpabe.encrypt(pk,msk, msg, policy_str,attr_list1)
     print(ctxt)
 
     # decryption

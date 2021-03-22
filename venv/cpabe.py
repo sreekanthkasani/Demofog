@@ -2,7 +2,7 @@
 from charm.toolbox.pairinggroup import PairingGroup, ZR, G1,G2, GT, pair, H, hashPair,order,pairing
 from charm.toolbox.ABEnc import ABEnc
 from msp import MSP
-import  sys,hashlib,time
+import  sys,hashlib,time, string,random
 debug = False
 
 
@@ -40,18 +40,21 @@ class BSW07(ABEnc):
         if debug:
             print('Setup algorithm:\n')
         strt_time = time.time()
+
         # pick a random element each from two source groups
         g = self.group.random(G1)
+
+        print("GG",g)
 
         #Randomly selects the variables required
         alpha = self.group.random(ZR)
         beta_1 = self.group.random(ZR)
         beta_2 = self.group.random(ZR)
         beta_bar = self.group.random(ZR)
-
+        print("alpha", alpha)
         #parameter evaluation
         p = self.group.order()
-        print(beta_1,beta_2, p)
+        print("p ::::::: ", p)
 
         beta = int(beta_1 + beta_2 ) % p
         T0 = g ** alpha
@@ -122,7 +125,34 @@ class BSW07(ABEnc):
         print("FSK =" , FSK)
         return USK, FSK
 
-    def encrypt(self, pk, msg, policy_str,univ):
+
+
+    def rhoMap(self,mono_span_prog, index):
+        i=0
+        for key in mono_span_prog:
+            if i == index:
+                return key
+            else :
+                i = i+1
+        return -1
+
+    def getRowOfA(self, mono_span_prog, index):
+        i = 0
+        for key in mono_span_prog:
+            if i == index:
+                return mono_span_prog[key]
+            else:
+                i = i + 1
+        return -1
+
+    def randomString(self, length):
+        letters = string.ascii_lowercase
+        result = ''.join((random.choice(letters)) for x in range(length))
+        return  result
+
+
+
+    def encrypt(self, pk,msk, msg, policy_str,univ):
         """
          Encrypt a message M under a policy string.
         """
@@ -134,33 +164,41 @@ class BSW07(ABEnc):
         mono_span_prog = self.util.convert_policy_to_msp(policy)
         num_cols = self.util.len_longest_row
 
-        print(policy,mono_span_prog)
-        print(num_cols)
-
-
-        # pick randomness
-        u = []
+        c_i_prime = []
+        d_i_prime = []
         for i in range(num_cols):
-            rand = self.group.random(ZR)
-            u.append(rand)
-        s = u[0]  # shared secret
+            r_i  = self.group.random(ZR)
+            c_i_prime.append(pk['g']** (r_i * pk['H'](int(self.rhoMap(mono_span_prog,i)))))
+            d_i_prime.append(pk['g'] ** (r_i * msk['V_mu'][int(self.rhoMap(mono_span_prog,i))]))
 
-        c0 = pk['h'] ** s
+        CT_prime = {'c_i_prime' :c_i_prime , 'd_i_prime':d_i_prime}
 
-        C = {}
-        for attr, row in mono_span_prog.items():
-            cols = len(row)
+
+
+
+        R = self.randomString(100)
+        r_dash = []
+        lambda_i = []
+
+        for i in range(num_cols):
+            r_dash.append(self.group.random(ZR))
+
+        print(mono_span_prog)
+        for k in range(len(mono_span_prog.keys())):
             sum = 0
-            for i in range(cols):
-                sum += row[i] * u[i]
-            attr_stripped = self.util.strip_index(attr)
-            c_i1 = pk['g2'] ** sum
-            c_i2 = self.group.hash(str(attr_stripped), G1) ** sum
-            C[attr] = (c_i1, c_i2)
+            temp = self.getRowOfA(mono_span_prog, k)
+            for j in range(len(temp)):
+                sum += temp[j] * r_dash[j]
+            lambda_i.append(sum)
 
-        c_m = (pk['e_gg_alpha'] ** s) * msg
 
-        return {'policy': policy, 'c0': c0, 'C': C, 'c_m': c_m}
+        print(lambda_i)
+        s=r_dash[0]
+        c_zero = pair(pk['g'], pk['g']) ** (msk['beta']*s)
+        #print(c_zero)
+
+
+        return CT_prime
 
 
 
