@@ -175,7 +175,7 @@ class BSW07(ABEnc):
 
 
 
-
+        print("Modified")
         R = self.randomString(100)
         r_dash = []
         lambda_i = []
@@ -225,5 +225,3 @@ class BSW07(ABEnc):
             prod *= (pair(k_attr1, c_attr1) / pair(c_attr2, k_attr2))
 
         return (ctxt['c_m'] * prod) / (pair(key['k0'], ctxt['c0']))
-
-
