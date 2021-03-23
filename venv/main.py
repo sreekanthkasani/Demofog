@@ -19,7 +19,7 @@ def main():
       #           'ONE2', 'TWO2', 'THREE2','FOUR2','FIVE2','SIX2','SEVEN2','EIGHT2','NINE2','TEN2',
        #          'ONE3', 'TWO3', 'THREE3','FOUR3','FIVE3','SIX3','SEVEN3','EIGHT3','NINE3','TEN3',
         #         'ONE4', 'TWO4', 'THREE4','FOUR4','FIVE4','SIX4','SEVEN4','EIGHT4','NINE4','TEN4']
-    kw = ['ONE', 'TWO', 'THREE','FOUR','FIVE','SIX','SEVEN','EIGHT','NINE','TEN']
+    kw = "modify"
 
     attr_list1 = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
     user_attr = ['1', '2','3','4']
@@ -29,7 +29,8 @@ def main():
     #              '61','62','63','64','65','66','67','68','69','70','71','72','73','47','75','76','77','78','79','80',
     #              '81','82','83','84','85','86','87','88','89','90','91','92','93','94','95','96','97','98','99','100']
 
-    tk = ['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN']
+    inverted_index = {"simulation": ['1', '3', '4', '8'], "experiment": ['2', '3', '6', '8'],
+                      "cluster": ['1', '2', '4', '6'], "modify": ['2', '4', '3', '5']}
 
     # run the set up
     strt = time.clock()
@@ -51,12 +52,14 @@ def main():
     ctxt = cpabe.encrypt(pk,msk, msg, policy_str,attr_list1)
     print(ctxt)
 
-    index_ = cpabe.IndexGen(pk,msk)
+    index_ = cpabe.IndexGen(pk,msk,inverted_index)
     print(index_)
 
-    TD_ = cpabe.TrapGen("simulation",USK,pk,msk)
+    TD_ = cpabe.TrapGen(kw,USK,pk,msk)
     print(TD_)
 
+    result = cpabe.search(index_,TD_,inverted_index)
+    print("search results",result)
 
     # decryption
    # rec_msg = cpabe.decrypt(pk, ctxt, key)

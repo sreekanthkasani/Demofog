@@ -208,10 +208,7 @@ class BSW07(ABEnc):
         return CT_ABE
 
 
-    def IndexGen(self,pk,msk):
-        inverted_index = {"simulation" : ['1','3','4','8'],"experiment" : ['2','3','6','8'],
-                "cluster":['1','2','4','6'] ,"modify" : ['2','4','3','5']}
-
+    def IndexGen(self,pk,msk,inverted_index):
         dict = list(inverted_index.keys())
         pi = []
         psi = []
@@ -239,8 +236,17 @@ class BSW07(ABEnc):
         return TD_
 
 
-    def search(self,Index_,TD_):
-
+    def search(self,Index_,TD_,ii):
+        for i in range(len(Index_['i1'])):
+            ptr = pair(Index_['i1'][i], TD_['t_1'])
+            ptr1 = pair(Index_['i2'][i], TD_['t_2'])
+            ptr2 = pair(Index_['i3'][i], TD_['t_3'])
+            if ptr*ptr1 == ptr2:
+                print("file found at the server")
+                temp = ii[i]
+                return temp
+        print("file not found at the server")
+        return -1
 
 
 
