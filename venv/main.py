@@ -51,6 +51,8 @@ def main():
     ctxt = cpabe.encrypt(pk,msk, msg, policy_str,attr_list1)
     print(ctxt)
 
+    index_ = cpabe.IndexGen(pk,msk)
+    print(index_)
     # decryption
    # rec_msg = cpabe.decrypt(pk, ctxt, key)
    # if debug:

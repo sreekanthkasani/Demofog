@@ -208,19 +208,28 @@ class BSW07(ABEnc):
         return CT_ABE
 
 
-    def IndexGen(self,pk):
+    def IndexGen(self,pk,msk):
         inverted_index = {"simulation" : ['1','3','4','8'],"experiment" : ['2','3','6','8'],
                 "cluster":['1','2','4','6'] ,"modify" : ['2','4','3','5']}
 
-        dict = inverted_index.keys()
-        pi = self.group.random(ZR)
+        dict = list(inverted_index.keys())
+        pi = []
         psi = []
-        i1 = []
-        i2
+        i1 = [];i2 = [];i3 = []
         for i in range(len(dict)):
             psi.append(self.group.random(ZR))
+            pi.append(self.group.random(ZR))
             i1.append(pk['T0']**(psi[i]*msk['beta_bar']))
-            temp = pk['g']**(psi[i])
+            temp = (pk['g']**(psi[i]+pi[i]))
+            temp2 = pk['g']**(int(self.group.random(ZR))*int(pk['H'](dict[0])))
+            i2.append(temp*temp2)
+            i3.append(pk['T0'] ** pi[i])
+
+        Index_ = {"i1":i1,"i2":i2,"i3":i3}
+        return Index_
+
+
+    def TrapGen(self,kw,USK,pk,msk):
 
 
 
