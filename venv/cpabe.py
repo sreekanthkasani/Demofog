@@ -144,12 +144,12 @@ class BSW07(ABEnc):
             else:
                 i = i + 1
         return -1
-
-    def randomString(self, length):
-        letters = string.ascii_lowercase
-        result = ''.join((random.choice(letters)) for x in range(length))
-        return  result
-
+    #
+    # def randomString(self, length):
+    #     letters = string.ascii_lowercase
+    #     result = ''.join((random.choice(letters)) for x in range(length))
+    #     return  result
+    #
 
 
     def encrypt(self, pk,msk, msg, policy_str,univ):
@@ -166,7 +166,7 @@ class BSW07(ABEnc):
 
         c_i_prime = []
         d_i_prime = []
-        for i in range(num_cols):
+        for i in range(len(mono_span_prog.keys())):
             r_i  = self.group.random(ZR)
             c_i_prime.append(pk['g']** (r_i * pk['H'](int(self.rhoMap(mono_span_prog,i)))))
             d_i_prime.append(pk['g'] ** (r_i * msk['V_mu'][int(self.rhoMap(mono_span_prog,i))]))
@@ -176,11 +176,11 @@ class BSW07(ABEnc):
 
 
 
-        R = self.randomString(100)
+        R = random.randint(1000,1000000)
         r_dash = []
         lambda_i = []
 
-        for i in range(num_cols):
+        for i in range(len(mono_span_prog.keys())):
             r_dash.append(self.group.random(ZR))
 
         print(mono_span_prog)
@@ -192,13 +192,36 @@ class BSW07(ABEnc):
             lambda_i.append(sum)
 
 
-        print(lambda_i)
         s=r_dash[0]
-        c_zero = pair(pk['g'], pk['g']) ** (msk['beta']*s)
-        #print(c_zero)
+        temp = msk['beta']
+        c0 =  R * (pk['Y'] ** int(s))
+        c1 = pk['g'] ** int(s)
+
+        c_i= []
+        for i in range(len(lambda_i)):
+            c_i.append((pk['T0'] ** lambda_i[i])*(c_i_prime[i]))
+
+        D_i = d_i_prime
+
+        CT_ABE = {"c0": c0 ,"c1": c1, "CT_prime": CT_prime }
+
+        return CT_ABE
 
 
-        return CT_prime
+    def IndexGen(self,pk):
+        inverted_index = {"simulation" : ['1','3','4','8'],"experiment" : ['2','3','6','8'],
+                "cluster":['1','2','4','6'] ,"modify" : ['2','4','3','5']}
+
+        dict = inverted_index.keys()
+        pi = self.group.random(ZR)
+        psi = []
+        i1 = []
+        i2
+        for i in range(len(dict)):
+            psi.append(self.group.random(ZR))
+            i1.append(pk['T0']**(psi[i]*msk['beta_bar']))
+            temp = pk['g']**(psi[i])
+
 
 
 
