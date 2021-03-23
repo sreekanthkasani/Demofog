@@ -210,17 +210,16 @@ class BSW07(ABEnc):
 
     def IndexGen(self,pk,msk,inverted_index):
         dict = list(inverted_index.keys())
-        pi = []
+        pi =  self.group.random(ZR)
         psi = []
         i1 = [];i2 = [];i3 = []
         for i in range(len(dict)):
             psi.append(self.group.random(ZR))
-            pi.append(self.group.random(ZR))
-            i1.append(pk['T0']**(psi[i]*msk['beta_bar']))
-            temp = (pk['g']**(psi[i]+pi[i]))
-            temp2 = pk['g']**(int(self.group.random(ZR))*int(pk['H'](dict[0])))
+            i1.append(pk['g']**(int(psi[i])*int(msk['beta_bar'])))
+            temp = (pk['T0']**(int(psi[i])+pi))
+            temp2 = pk['g']**(int(psi[i])*int(pk['H'](dict[i])))
             i2.append(temp*temp2)
-            i3.append(pk['T0'] ** pi[i])
+            i3.append(pk['T0'] ** pi)
 
         Index_ = {"i1":i1,"i2":i2,"i3":i3}
         return Index_
@@ -228,11 +227,11 @@ class BSW07(ABEnc):
 
     def TrapGen(self,kw,USK,pk,msk):
         varphi = self.group.random(ZR)
-        t_1 = pk['g']**(int(varphi)*(1+int(pk['H'](kw))))
-        t_2 = pk['T0']**(int(varphi)*int(msk['beta_bar']))
-        t_3 = pk['T1']**varphi
+        t_1 = pk['g']**(int(varphi)*(int(msk['alpha'])+int(pk['H'](kw))))
+        t_2 = pk['g']**(int(varphi)*int(msk['beta_bar']))
+        # t_3 = pk['T1']**varphi
         Eak = USK['E_ak']
-        TD_ = {'t_1':t_1,'t_2':t_2,'t_3':t_3,'E_ak':Eak}
+        TD_ = {'t_1':t_1,'t_2':t_2,'E_ak':Eak}
         return TD_
 
 
@@ -240,8 +239,8 @@ class BSW07(ABEnc):
         for i in range(len(Index_['i1'])):
             ptr = pair(Index_['i1'][i], TD_['t_1'])
             ptr1 = pair(Index_['i2'][i], TD_['t_2'])
-            ptr2 = pair(Index_['i3'][i], TD_['t_3'])
-            if ptr*ptr1 == ptr2:
+            ptr2 = pair(Index_['i3'][i], TD_['t_2'])
+            if ptr*ptr2 == ptr1:
                 print("file found at the server")
                 temp = ii[i]
                 return temp
