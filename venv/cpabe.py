@@ -42,7 +42,7 @@ class BSW07(ABEnc):
         strt_time = time.time()
 
         # pick a random element each from two source groups
-        g = self.group.random(G1)
+        g = list(self.group.random(G1))
 
         print("GG",g)
 
@@ -54,7 +54,7 @@ class BSW07(ABEnc):
         print("alpha", alpha)
         #parameter evaluation
         p = self.group.order()
-        print("p ::::::: ", p)
+        # print("p ::::::: ", p)
 
         beta = int(beta_1 + beta_2 ) % p
         T0 = g ** alpha
@@ -70,9 +70,9 @@ class BSW07(ABEnc):
         #setting PK and MSK
         pk = {'G1': G1, 'GT': GT, 'p': p, 'e' : G1,  'g': g, 'H' : hash, 'H0':self.hash_0 , 'H1': self.hash_1, 'H2':self.hash_2 ,'Y': Y, 'T0':T0,'T1': T1,'APK':Apk}
         msk = {'beta': beta,'beta_1': beta_1,'beta_2': beta_2,'alpha':alpha, 'beta_bar': beta_bar, 'V_mu': V}
-        print(pk)
-        print(msk)
-        print ("%s", time.time()-strt_time)
+        # print(pk)
+        # print(msk)
+        # print ("%s", time.time()-strt_time)
         return pk, msk
 
 
@@ -81,7 +81,7 @@ class BSW07(ABEnc):
         k_s2 = pk['g'] ** (shrd['l']/shrd['m'])
         F_ak = shrd['ak']
 
-        print(msk['V_mu'])
+        # print(msk['V_mu'])
 
         #
         k_mu = []
@@ -121,8 +121,8 @@ class BSW07(ABEnc):
 
         FSK = self.FKeyGen(pk,msk,shrd,user_attr)
         USK = self.UKeyGen(pk,msk,shrd,user_attr)
-        print("USK = " , USK)
-        print("FSK =" , FSK)
+        # print("USK = " , USK)
+        # print("FSK =" , FSK)
         return USK, FSK
 
 

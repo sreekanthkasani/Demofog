@@ -36,13 +36,13 @@ def main():
     strt = time.clock()
     (pk, msk) = cpabe.setup(attr_list1)
     end = time.clock()
-    print ("Time for setup:", (end-strt)*1000)
+    # print ("Time for setup:", (end-strt)*1000)
 
     # generate a key
     strt1 = time.clock()
     (USK,FSK) = cpabe.keygen(pk, msk, user_attr)
     end1 = time.clock()
-    print ("Time for keygen:", (end1 - strt1) * 1000)
+    # print ("Time for keygen:", (end1 - strt1) * 1000)
 
     # choose a random message
     msg = pairing_group.random(GT)
@@ -50,13 +50,13 @@ def main():
     # generate a ciphertext
     policy_str = '((1 and 3) and (2 OR 4))'
     ctxt = cpabe.encrypt(pk,msk, msg, policy_str,attr_list1)
-    print(ctxt)
+    # print(ctxt)
 
     index_ = cpabe.IndexGen(pk,msk,inverted_index)
-    print(index_)
+    print("index",index_)
 
     TD_ = cpabe.TrapGen(kw,USK,pk,msk)
-    print(TD_)
+    print("trapdoor",TD_)
 
     result = cpabe.search(index_,TD_,inverted_index)
     print("search results",result)
