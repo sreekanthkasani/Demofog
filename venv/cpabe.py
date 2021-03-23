@@ -230,6 +230,17 @@ class BSW07(ABEnc):
 
 
     def TrapGen(self,kw,USK,pk,msk):
+        varphi = self.group.random(ZR)
+        t_1 = pk['g']**(int(varphi)*(1+int(pk['H'](kw))))
+        t_2 = pk['T0']**(int(varphi)*int(msk['beta_bar']))
+        t_3 = pk['T1']**varphi
+        Eak = USK['E_ak']
+        TD_ = {'t_1':t_1,'t_2':t_2,'t_3':t_3,'E_ak':Eak}
+        return TD_
+
+
+    def search(self,Index_,TD_):
+
 
 
 

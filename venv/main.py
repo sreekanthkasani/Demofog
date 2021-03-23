@@ -53,6 +53,11 @@ def main():
 
     index_ = cpabe.IndexGen(pk,msk)
     print(index_)
+
+    TD_ = cpabe.TrapGen("simulation",USK,pk,msk)
+    print(TD_)
+
+
     # decryption
    # rec_msg = cpabe.decrypt(pk, ctxt, key)
    # if debug:
