@@ -30,36 +30,50 @@ def main():
     #              '81','82','83','84','85','86','87','88','89','90','91','92','93','94','95','96','97','98','99','100']
 
     inverted_index = {"simulation": ['1', '3', '4', '8'], "experiment": ['2', '3', '6', '8'],
-                      "cluster": ['1', '2', '4', '6'], "modify": ['2', '4', '3', '5']}
+                      "cluster": ['1', '2', '4', '6'], "modify": ['2', '4', '3', '5'],"test": ['6', '2', '1', '5'],
+                      "webcam" : ['6', '2', '1', '5'],"video" : ['6', '2', '1', '5'],"main" : ['6', '2', '1', '5'],
+                      "cpabe" : ['6', '2', '1', '5'],"python" : ['6', '2', '1', '5']}
 
     # run the set up
     strt = time.clock()
     (pk, msk) = cpabe.setup(attr_list1)
     end = time.clock()
-    # print ("Time for setup:", (end-strt)*1000)
+    print ("Time for setup:", (end-strt)*1000)
 
     # generate a key
-    strt1 = time.clock()
+    strt = time.clock()
     (USK,FSK) = cpabe.keygen(pk, msk, user_attr)
-    end1 = time.clock()
-    # print ("Time for keygen:", (end1 - strt1) * 1000)
+    end = time.clock()
+    print ("Time for keygen:", (end - strt) * 1000)
 
     # choose a random message
     msg = pairing_group.random(GT)
 
     # generate a ciphertext
     policy_str = '((1 and 3) and (2 OR 4))'
+    strt = time.clock()
     ctxt = cpabe.encrypt(pk,msk, msg, policy_str,attr_list1)
-    # print(ctxt)
+    end = time.clock()
+    print("time for ciphertext generation :",(end - strt) * 1000)
 
+
+    strt = time.clock()
     index_ = cpabe.IndexGen(pk,msk,inverted_index)
-    print("index",index_)
+    end = time.clock()
+    print("time for index generation :",(end - strt) * 1000)
 
+    # print("index",index_)
+    strt = time.clock()
     TD_ = cpabe.TrapGen(kw,USK,pk,msk)
-    print("trapdoor",TD_)
+    end = time.clock()
+    print("time for trapdoor :",(end - strt) * 1000)
+    # print("trapdoor",TD_)
 
+    strt = time.clock()
     result = cpabe.search(index_,TD_,inverted_index)
-    print("search results",result)
+    end = time.clock()
+    print("time for search :",(end - strt) * 1000)
+    # print("search results",result)
 
     # decryption
    # rec_msg = cpabe.decrypt(pk, ctxt, key)

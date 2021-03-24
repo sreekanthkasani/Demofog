@@ -1,5 +1,5 @@
 
-from charm.toolbox.pairinggroup import PairingGroup, ZR, G1,G2, GT, pair, H, hashPair,order,pairing
+from charm.toolbox.pairinggroup import PairingGroup, ZR,G1,G2, GT, pair, H, hashPair,order,pairing
 from charm.toolbox.ABEnc import ABEnc
 from msp import MSP
 import  sys,hashlib,time, string,random
@@ -42,21 +42,24 @@ class BSW07(ABEnc):
         strt_time = time.time()
 
         # pick a random element each from two source groups
-        g = list(self.group.random(G1))
+        g =self.group.random(G1)
+        print(type(g**2))
 
-        print("GG",g)
+
 
         #Randomly selects the variables required
         alpha = self.group.random(ZR)
         beta_1 = self.group.random(ZR)
         beta_2 = self.group.random(ZR)
         beta_bar = self.group.random(ZR)
-        print("alpha", alpha)
+        # print("alpha", alpha)
         #parameter evaluation
         p = self.group.order()
         # print("p ::::::: ", p)
 
         beta = int(beta_1 + beta_2 ) % p
+        print(type(beta))
+
         T0 = g ** alpha
         T1 = g ** beta_bar
         Y = pair(g,g) ** beta
@@ -70,9 +73,9 @@ class BSW07(ABEnc):
         #setting PK and MSK
         pk = {'G1': G1, 'GT': GT, 'p': p, 'e' : G1,  'g': g, 'H' : hash, 'H0':self.hash_0 , 'H1': self.hash_1, 'H2':self.hash_2 ,'Y': Y, 'T0':T0,'T1': T1,'APK':Apk}
         msk = {'beta': beta,'beta_1': beta_1,'beta_2': beta_2,'alpha':alpha, 'beta_bar': beta_bar, 'V_mu': V}
-        # print(pk)
-        # print(msk)
-        # print ("%s", time.time()-strt_time)
+        print(pk)
+        print(msk)
+        print ("%s", time.time()-strt_time)
         return pk, msk
 
 
@@ -81,9 +84,7 @@ class BSW07(ABEnc):
         k_s2 = pk['g'] ** (shrd['l']/shrd['m'])
         F_ak = shrd['ak']
 
-        # print(msk['V_mu'])
 
-        #
         k_mu = []
         for i in range(0, len(user_attr)):
             temp1 = shrd['l']/(msk['V_mu'][int(user_attr[i])-1])
@@ -121,8 +122,8 @@ class BSW07(ABEnc):
 
         FSK = self.FKeyGen(pk,msk,shrd,user_attr)
         USK = self.UKeyGen(pk,msk,shrd,user_attr)
-        # print("USK = " , USK)
-        # print("FSK =" , FSK)
+        print("USK = " , USK)
+        print("FSK =" , FSK)
         return USK, FSK
 
 
@@ -164,6 +165,7 @@ class BSW07(ABEnc):
         mono_span_prog = self.util.convert_policy_to_msp(policy)
         num_cols = self.util.len_longest_row
 
+        print(mono_span_prog)
         c_i_prime = []
         d_i_prime = []
         for i in range(len(mono_span_prog.keys())):
@@ -183,7 +185,7 @@ class BSW07(ABEnc):
         for i in range(len(mono_span_prog.keys())):
             r_dash.append(self.group.random(ZR))
 
-        print(mono_span_prog)
+        # print(mo/no_span_prog)
         for k in range(len(mono_span_prog.keys())):
             sum = 0
             temp = self.getRowOfA(mono_span_prog, k)
@@ -216,8 +218,8 @@ class BSW07(ABEnc):
         for i in range(len(dict)):
             psi.append(self.group.random(ZR))
             i1.append(pk['g']**(int(psi[i])*int(msk['beta_bar'])))
-            temp = (pk['T0']**(int(psi[i])+pi))
-            temp2 = pk['g']**(int(psi[i])*int(pk['H'](dict[i])))
+            temp = (pk['T0'] ** (int(psi[i]))) * (pk['T0'] ** (pi))
+            temp2 = (pk['g'] ** (int(psi[i]) * int(pk['H'](dict[i]))))
             i2.append(temp*temp2)
             i3.append(pk['T0'] ** pi)
 
@@ -227,8 +229,8 @@ class BSW07(ABEnc):
 
     def TrapGen(self,kw,USK,pk,msk):
         varphi = self.group.random(ZR)
-        t_1 = pk['g']**(int(varphi)*(int(msk['alpha'])+int(pk['H'](kw))))
-        t_2 = pk['g']**(int(varphi)*int(msk['beta_bar']))
+        t_1 = (pk['T0'] ** (int(varphi))) * (pk['g'] ** (int(varphi) * int(pk['H'](kw))))
+        t_2 = pk['g'] ** (int(varphi)*int(msk['beta_bar']))
         # t_3 = pk['T1']**varphi
         Eak = USK['E_ak']
         TD_ = {'t_1':t_1,'t_2':t_2,'E_ak':Eak}
@@ -255,23 +257,7 @@ class BSW07(ABEnc):
          Decrypt ciphertext ctxt with key key.
         """
 
-        if debug:
-            print('Decryption algorithm:\n')
-
-        nodes = self.util.prune(ctxt['policy'], key['attr_list'])
-        if not nodes:
-            print("Policy not satisfied.")
-            return None
-
-        prod = 1
-
-        for node in nodes:
-            attr = node.getAttributeAndIndex()
-            attr_stripped = self.util.strip_index(attr)
-            (c_attr1, c_attr2) = ctxt['C'][attr]
-            (k_attr1, k_attr2) = key['K'][attr_stripped]
-            prod *= (pair(k_attr1, c_attr1) / pair(c_attr2, k_attr2))
-
+if debug:
         return (ctxt['c_m'] * prod) / (pair(key['k0'], ctxt['c0']))
 
 
