@@ -64,11 +64,11 @@ class BSW07(ABEnc):
         T1 = g ** beta_bar
         Y = pair(g,g) ** beta
 
-        V = []
-        Apk = []
+        V = {}
+        Apk = {}
         for i in range(0,len(attr_list1)):
-            V.append(self.group.random(ZR))
-            Apk.append(g ** int(attr_list1[i]))
+            V[attr_list1[i]] = self.group.random(ZR)
+            Apk[attr_list1[i]] = g ** V[attr_list1[i]]
 
         #setting PK and MSK
         pk = {'G1': G1, 'GT': GT, 'p': p, 'e' : G1,  'g': g, 'H' : hash, 'H0':self.hash_0 , 'H1': self.hash_1, 'H2':self.hash_2 ,'Y': Y, 'T0':T0,'T1': T1,'APK':Apk}
@@ -85,12 +85,14 @@ class BSW07(ABEnc):
         F_ak = shrd['ak']
 
 
-        k_mu = []
+        k_mu = {}
         for i in range(0, len(user_attr)):
-            temp1 = shrd['l']/(msk['V_mu'][int(user_attr[i])-1])
+            temp1 = shrd['l']/(msk['V_mu'][user_attr[i]])
             temp =  pk['H'](int(user_attr[i]))/shrd['m']
             temp = pk['g'] ** (temp*temp1)
-            k_mu.append(temp)
+            k_mu[user_attr[i]] = temp
+
+
 
         FSK = {'k_s1': k_s1  ,'k_s2':k_s2, 'k_mu':k_mu, 'F_ak': F_ak}
 
@@ -171,7 +173,7 @@ class BSW07(ABEnc):
         for i in range(len(mono_span_prog.keys())):
             r_i  = self.group.random(ZR)
             c_i_prime.append(pk['g']** (r_i * pk['H'](int(self.rhoMap(mono_span_prog,i)))))
-            d_i_prime.append(pk['g'] ** (r_i * msk['V_mu'][int(self.rhoMap(mono_span_prog,i))]))
+            d_i_prime.append(pk['g'] ** (r_i * msk['V_mu'][self.rhoMap(mono_span_prog,i)]))
 
         CT_prime = {'c_i_prime' :c_i_prime , 'd_i_prime':d_i_prime}
 
@@ -179,6 +181,7 @@ class BSW07(ABEnc):
 
 
         R = random.randint(1000,1000000)
+        print("R :",R)
         r_dash = []
         lambda_i = []
 
@@ -205,7 +208,7 @@ class BSW07(ABEnc):
 
         D_i = d_i_prime
 
-        CT_ABE = {"c0": c0 ,"c1": c1, "CT_prime": CT_prime }
+        CT_ABE = {"c0": c0 ,"c1": c1, "ci": c_i , "di" : D_i,"msp":mono_span_prog }
 
         return CT_ABE
 
@@ -252,12 +255,42 @@ class BSW07(ABEnc):
 
 
 
-    def decrypt(self, pk, ctxt, key):
+    def decrypt(self, pk, msk, ctxt, FSK, USK):
         """
          Decrypt ciphertext ctxt with key key.
         """
+        s = 0
+        wi = []
+        temp = 1;temp2 =1
+        for i in range(len(ctxt['ci'])):
+            wi.append(self.group.random(ZR))
+            temp = temp * (pair(ctxt['ci'][i],FSK['k_s2'])**wi[i])
+            temp2 = temp2 * (pair(ctxt['di'][i],FSK['k_mu'][self.rhoMap(ctxt['msp'],i)])**wi[i])
+            temp2 = temp2 * pair(ctxt['c1'], FSK['k_s1'])
+            E  = temp/temp2
 
-if debug:
-        return (ctxt['c_m'] * prod) / (pair(key['k0'], ctxt['c0']))
+        ptr = ctxt['c0'] * (E ** USK['k_u2'])
+        ptr1 = pair(ctxt['c1'],USK['k_u1'])
+        R = ptr/ptr1
+
+        return  R
+
+
+    def attrRevocation(self,pk,msk,FSK,mu):
+
+        vmu_prime = self.group.random(ZR)
+
+        while msk['V_mu'][mu] == vmu_prime:
+            vmu_prime = self.group.random(ZR)
+
+        msk['V_mu'][mu] = vmu_prime/msk['V_mu'][mu]
+        pk['APK'][mu] = pk['APK'][mu] ** msk['V_mu'][mu]
+
+        #updated userkey generation
+        FSK['k_mu'][mu] = pk['g'] ** (FSK['k_s2']*(H(mu)/msk['V_mu'][mu]))
+
+        #updated ciphertext generation
+
+
 
 

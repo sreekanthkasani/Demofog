@@ -76,7 +76,11 @@ def main():
     # print("search results",result)
 
     # decryption
-   # rec_msg = cpabe.decrypt(pk, ctxt, key)
+    strt = time.clock()
+    rec_msg = cpabe.decrypt(pk,msk, ctxt, FSK, USK)
+    end = time.clock()
+    print("time for decryption :",(end - strt) * 1000)
+
    # if debug:
    #     if rec_msg == msg:
    #         print ("Successful decryption.")
