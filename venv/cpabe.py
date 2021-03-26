@@ -43,7 +43,7 @@ class BSW07(ABEnc):
 
         # pick a random element each from two source groups
         g =self.group.random(G1)
-        print(type(g**2))
+        # print(type(g**2))
 
 
 
@@ -58,7 +58,7 @@ class BSW07(ABEnc):
         # print("p ::::::: ", p)
 
         beta = int(beta_1 + beta_2 ) % p
-        print(type(beta))
+        # print(type(beta))
 
         T0 = g ** alpha
         T1 = g ** beta_bar
@@ -73,9 +73,9 @@ class BSW07(ABEnc):
         #setting PK and MSK
         pk = {'G1': G1, 'GT': GT, 'p': p, 'e' : G1,  'g': g, 'H' : hash, 'H0':self.hash_0 , 'H1': self.hash_1, 'H2':self.hash_2 ,'Y': Y, 'T0':T0,'T1': T1,'APK':Apk}
         msk = {'beta': beta,'beta_1': beta_1,'beta_2': beta_2,'alpha':alpha, 'beta_bar': beta_bar, 'V_mu': V}
-        print(pk)
-        print(msk)
-        print ("%s", time.time()-strt_time)
+        # print(pk)
+        # print(msk)
+        # print ("%s", time.time()-strt_time)
         return pk, msk
 
 
@@ -124,8 +124,8 @@ class BSW07(ABEnc):
 
         FSK = self.FKeyGen(pk,msk,shrd,user_attr)
         USK = self.UKeyGen(pk,msk,shrd,user_attr)
-        print("USK = " , USK)
-        print("FSK =" , FSK)
+        # print("USK = " , USK)
+        # print("FSK =" , FSK)
         return USK, FSK
 
 
@@ -167,13 +167,13 @@ class BSW07(ABEnc):
         mono_span_prog = self.util.convert_policy_to_msp(policy)
         num_cols = self.util.len_longest_row
 
-        print(mono_span_prog)
+        # print(mono_span_prog)
         c_i_prime = []
-        d_i_prime = []
+        d_i_prime = {}
         for i in range(len(mono_span_prog.keys())):
             r_i  = self.group.random(ZR)
             c_i_prime.append(pk['g']** (r_i * pk['H'](int(self.rhoMap(mono_span_prog,i)))))
-            d_i_prime.append(pk['g'] ** (r_i * msk['V_mu'][self.rhoMap(mono_span_prog,i)]))
+            d_i_prime[self.rhoMap(mono_span_prog,i)] = (pk['g'] ** (r_i * msk['V_mu'][self.rhoMap(mono_span_prog,i)]))
 
         CT_prime = {'c_i_prime' :c_i_prime , 'd_i_prime':d_i_prime}
 
@@ -181,7 +181,7 @@ class BSW07(ABEnc):
 
 
         R = random.randint(1000,1000000)
-        print("R :",R)
+        # print("R :",R)
         r_dash = []
         lambda_i = []
 
@@ -265,7 +265,7 @@ class BSW07(ABEnc):
         for i in range(len(ctxt['ci'])):
             wi.append(self.group.random(ZR))
             temp = temp * (pair(ctxt['ci'][i],FSK['k_s2'])**wi[i])
-            temp2 = temp2 * (pair(ctxt['di'][i],FSK['k_mu'][self.rhoMap(ctxt['msp'],i)])**wi[i])
+            temp2 = temp2 * (pair(ctxt['di'][self.rhoMap(ctxt['msp'],i)],FSK['k_mu'][self.rhoMap(ctxt['msp'],i)])**wi[i])
             temp2 = temp2 * pair(ctxt['c1'], FSK['k_s1'])
             E  = temp/temp2
 
@@ -276,9 +276,10 @@ class BSW07(ABEnc):
         return  R
 
 
-    def attrRevocation(self,pk,msk,FSK,mu):
+    def attrRevocation(self,pk,msk,FSK,mu,ctxt):
 
         vmu_prime = self.group.random(ZR)
+
 
         while msk['V_mu'][mu] == vmu_prime:
             vmu_prime = self.group.random(ZR)
@@ -287,10 +288,17 @@ class BSW07(ABEnc):
         pk['APK'][mu] = pk['APK'][mu] ** msk['V_mu'][mu]
 
         #updated userkey generation
-        FSK['k_mu'][mu] = pk['g'] ** (FSK['k_s2']*(H(mu)/msk['V_mu'][mu]))
+        temp = pk['H'](int(mu))/msk['V_mu'][mu]
+        test = FSK['k_s2'] ** (temp)
 
         #updated ciphertext generation
+        for i in range(len(ctxt['di'])):
+            if(self.rhoMap(ctxt['msp'],i) == mu):
+                r_i = self.group.random(ZR)
+                ctxt['di'] [self.rhoMap(ctxt['msp'],i)] = pk['g'] ** (r_i * msk['V_mu'][self.rhoMap(ctxt['msp'],i)] )
 
 
+        return  FSK,ctxt
 
 
+    # def usrRevocation(self,):

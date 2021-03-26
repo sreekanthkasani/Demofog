@@ -1,8 +1,5 @@
-'''
-:Authors:         Shashank Agrawal
-:Date:            5/2016
-'''
-import time
+
+import time,random
 from charm.toolbox.pairinggroup import PairingGroup, GT
 from cpabe import BSW07
 
@@ -14,15 +11,11 @@ def main():
 
     # AC17 CP-ABE under DLIN (2-linear)
     cpabe = BSW07(pairing_group, 2)
-    #attr_list = ['ONE', 'TWO', 'THREE','FOUR','FIVE','SIX','SEVEN','EIGHT','NINE','TEN','ONE1',
-     #            'TWO1', 'THREE1','FOUR1','FIVE1','SIX1','SEVEN1','EIGHT1','NINE1','TEN1',
-      #           'ONE2', 'TWO2', 'THREE2','FOUR2','FIVE2','SIX2','SEVEN2','EIGHT2','NINE2','TEN2',
-       #          'ONE3', 'TWO3', 'THREE3','FOUR3','FIVE3','SIX3','SEVEN3','EIGHT3','NINE3','TEN3',
-        #         'ONE4', 'TWO4', 'THREE4','FOUR4','FIVE4','SIX4','SEVEN4','EIGHT4','NINE4','TEN4']
     kw = "modify"
 
     attr_list1 = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
-    user_attr = ['1', '2','3','4']
+    user_attr  = ['1', '2','3','4']
+    user_attr2 = ['2', '4', '9', '10']
     # attr_list1 = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21',
     #              '22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40',
     #             '41','42','43','44','45','46','47','48','49','50','51','52','53','54','55','56','57','58','59','60',
@@ -35,16 +28,50 @@ def main():
                       "cpabe" : ['6', '2', '1', '5'],"python" : ['6', '2', '1', '5']}
 
     # run the set up
-    strt = time.clock()
-    (pk, msk) = cpabe.setup(attr_list1)
-    end = time.clock()
-    print ("Time for setup:", (end-strt)*1000)
+    attr_list1 = []
+    setup_time = {}
+    k = 10
+
+    for l in range(10):
+        print(k)
+        for i in range(k):
+            attr_list1.append(str(i))
+        temp = 0
+        for j in range(10):
+            strt = time.clock()
+            (pk, msk) = cpabe.setup(attr_list1)
+            end = time.clock()
+            temp = temp + (end-strt)*1000
+
+        setup_time[k] = temp/10
+        k = k+10
+
+
+    sorted(setup_time.items(), key=lambda x: x[1])
+    print("setup times", sorted(setup_time.items(), key=lambda x: x[1]))
 
     # generate a key
-    strt = time.clock()
-    (USK,FSK) = cpabe.keygen(pk, msk, user_attr)
-    end = time.clock()
-    print ("Time for keygen:", (end - strt) * 1000)
+    keygen_time = {}
+    user_attr = []
+    k=10
+    print("attribute list",len(attr_list1))
+    for l in range(5):
+        print(k)
+        for i in range(k):
+            user_attr.append(str(random.randint(1,50)))
+        temp = 0
+        for j in range(10):
+            strt = time.clock()
+            (USK, FSK) = cpabe.keygen(pk, msk, user_attr)
+            end = time.clock()
+            temp = temp + (end - strt) * 1000
+
+        keygen_time[k] = temp / 10
+        k = k + 10
+    print("keygen times", sorted(keygen_time.items(), key=lambda x: x[1]))
+
+
+
 
     # choose a random message
     msg = pairing_group.random(GT)
@@ -80,13 +107,24 @@ def main():
     rec_msg = cpabe.decrypt(pk,msk, ctxt, FSK, USK)
     end = time.clock()
     print("time for decryption :",(end - strt) * 1000)
-
    # if debug:
    #     if rec_msg == msg:
    #         print ("Successful decryption.")
    #     else:
    #         print ("Decryption failed.")
 
+    #attribute revocation
+    strt = time.clock()
+    mu = '2'
+    UFSK, UCT_ABE  = cpabe.attrRevocation(pk,msk, FSK, mu, ctxt)
+    end = time.clock()
+    print("time for revocation :",(end - strt) * 1000)
+
+
+    # start = time.clock()
+    # urevoke = cpabe.traceability(pk,USK,FSK)
+    # end = time.clock()
+    print("time for key sanity :",(end - strt) * 1000)
 
 if __name__ == "__main__":
     debug = False
