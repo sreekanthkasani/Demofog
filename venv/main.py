@@ -27,7 +27,12 @@ def main():
                       "webcam" : ['6', '2', '1', '5'],"video" : ['6', '2', '1', '5'],"main" : ['6', '2', '1', '5'],
                       "cpabe" : ['6', '2', '1', '5'],"python" : ['6', '2', '1', '5']}
 
-    # run the set up
+
+
+    ######################  SETUP ##################################################
+
+
+
     attr_list1 = []
     setup_time = {}
     k = 10
@@ -50,7 +55,8 @@ def main():
     sorted(setup_time.items(), key=lambda x: x[1])
     print("setup times", sorted(setup_time.items(), key=lambda x: x[1]))
 
-    # generate a key
+
+    ##################  KEY GENERATION ##################################
     keygen_time = {}
     user_attr = []
     k=10
